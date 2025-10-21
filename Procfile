@@ -1,1 +1,1 @@
-web: gunicorn SwahiliFacile.wsgi:application --log-file -
+web: gunicorn swahili_facile.wsgi:application
