@@ -96,22 +96,23 @@ STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
 # --- Configuration Cloudinary ---
 CLOUDINARY_URL = os.environ.get(
     'CLOUDINARY_URL',
     'cloudinary://666288578721726:mJvxigW8H-kDTgTMpKzSkP4aFig@dqqnbdmow'
 )
 
+# Configure Cloudinary
 cloudinary.config(
     cloud_name="dqqnbdmow",
     api_key="666288578721726",
-    api_secret="mJvxigW8H-kDTgTMpKzSkP4aFig"
+    api_secret="mJvxigW8H-kDTgTMpKzSkP4aFig",
+    secure=True  # ✅ OBLIGATOIRE pour https en production
 )
 
+# ⚠️ Correction ici :
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+MEDIA_URL = '/media/'  # Django ne sert pas réellement ces fichiers en prod, mais utile en local
 
 # Jazzmin
 JAZZMIN_SETTINGS = {
