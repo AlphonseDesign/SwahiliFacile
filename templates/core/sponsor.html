@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Sponsoriser - Swahili Facile{% endblock %}
+
+{% block styles %}
+<style>
+/* 🌍 Section principale */
+.sponsor-container {
+    max-width: 900px;
+    margin: 40px auto;
+    background: var(--card-bg, #ffffff); /* Variable thème */
+    color: var(--text-dark); /* Variable thème */
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    overflow: hidden;
+    animation: fadeIn 1.2s ease-in-out;
+    border: 1px solid var(--border-color, #f0f0f0);
+}
+
+/* Animation d’apparition douce */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* En-tête héroïque */
+.sponsor-header {
+    background: linear-gradient(135deg, #007bff, #00b4d8);
+    color: white;
+    text-align: center;
+    padding: 50px 30px;
+}
+.sponsor-header h1 {
+    font-size: 2.2em;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+.sponsor-header p {
+    font-size: 1.1em;
+    opacity: 0.9;
+}
+
+/* Contenu principal */
+.sponsor-content {
+    padding: 40px 30px;
+    text-align: center;
+}
+.sponsor-content h2 {
+    font-size: 1.6em;
+    color: var(--primary-color, #0a3d62);
+    margin-bottom: 15px;
+}
+.sponsor-content p {
+    font-size: 1.05em;
+    color: var(--text-secondary-color, #444);
+    max-width: 700px;
+    margin: 0 auto 25px;
+    line-height: 1.6em;
+}
+
+/* Méthodes de paiement */
+.payment-methods {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    flex-wrap: wrap;
+}
+.method {
+    background: var(--background-color, #f9fbff);
+    border: 1px solid var(--border-color, #e4e6eb);
+    padding: 25px 20px;
+    border-radius: 14px;
+    min-width: 240px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.method:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 18px rgba(0,0,0,0.08);
+}
+.method h3 {
+    color: var(--primary-color, #0056b3);
+    margin-bottom: 8px;
+    font-size: 1.2em;
+}
+.method .number {
+    font-size: 1.3em;
+    font-weight: bold;
+    color: var(--text-dark, #222);
+    margin: 8px 0;
+}
+.method p {
+    margin: 0;
+    color: var(--secondary-color, #666);
+}
+
+/* Section remerciement */
+.thanks {
+    margin-top: 40px;
+    padding: 25px;
+    background: #f0f8ff;
+    border-radius: 12px;
+    color: var(--primary-color, #0a3d62);
+    font-style: italic;
+    font-weight: 500;
+    animation: pulse 2s infinite;
+}
+body.dark-theme .thanks {
+    background: rgba(0, 86, 179, 0.1);
+    color: var(--text-dark);
+}
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(0,123,255,0.4); }
+    70% { box-shadow: 0 0 0 10px rgba(0,123,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(0,123,255,0); }
+}
+
+/* Bouton d’action (retiré pour l'instant, car manuel) */
+/*
+.btn-donate {
+    display: inline-block;
+    margin-top: 20px;
+    background: linear-gradient(135deg, #007bff, #00b4d8);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    font-weight: 600;
+    text-decoration: none;
+    transition: background 0.3s ease;
+}
+.btn-donate:hover {
+    background: linear-gradient(135deg, #0056b3, #0096c7);
+}
+*/
+
+/* Responsive */
+@media (max-width: 600px) {
+    .sponsor-container {
+        margin: 10px;
+    }
+    .sponsor-header {
+        padding: 40px 20px;
+    }
+    .sponsor-content {
+        padding: 30px 20px;
+    }
+    .method {
+        width: 100%;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sponsor-container">
+    <div class="sponsor-header">
+        <h1><i class="fa-solid fa-hand-holding-heart"></i> Soutenez Swahili Facile</h1>
+        <p>Garantissez l'accès à une information libre et pertinente au Kivu. 🌍</p>
+    </div>
+
+    <div class="sponsor-content">
+        <h2>Pourquoi devenir sponsor ?</h2>
+        <p>
+            Swahili Facile est un média indépendant dédié à l'éveil de conscience. 
+            Votre contribution nous permet de couvrir nos frais, de produire des dossiers de fond, 
+            et de garder notre information instantanée accessible à tous, sans paywall.
+        </p>
+
+        <h2>Méthodes de contribution</h2>
+        <div class="payment-methods">
+            <div class="method">
+                <h3><i class="fa-solid fa-mobile-screen-button"></i> Airtel Money</h3>
+                <p>Envoyez votre soutien à :</p>
+                <div class="number">+243 971 404 824</div>
+                <p>Nom : <strong>Alphonse Nzogero</strong></p>
+            </div>
+
+            <div class="method">
+                <h3><i class="fa-solid fa-coins"></i> Orange Money</h3>
+                <p>Envoyez votre soutien à :</p>
+                <div class="number">+243 995 122 964</div>
+                <p>Nom : <strong>Alphonse Nzogero</strong></p>
+            </div>
+        </div>
+
+        <div class="thanks">
+            <p>Asante sana kwa mchango wako 💙<br>Chaque geste compte pour un média libre et indépendant !</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

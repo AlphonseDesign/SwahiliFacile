@@ -1,0 +1,187 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Profil de {{ user_profile.nom_utilisateur }}{% endblock %}
+
+{% block styles %}
+<style>
+.profile-card {
+    background: var(--card-bg, #fff);
+    color: var(--text-dark);
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    padding: 40px 30px;
+    max-width: 500px; /* Largeur augmentée */
+    width: 100%;
+    margin: 70px auto;
+    animation: fadeIn 0.7s ease-in-out;
+    border: 1px solid var(--border-color, #f0f0f0);
+}
+.profile-picture {
+    width: 130px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary-color, #0056b3);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    margin-bottom: 20px;
+    background-color: #fff;
+}
+.profile-name {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 12px;
+}
+.profile-name h1 {
+    font-size: 1.6em;
+    color: var(--text-dark);
+    font-weight: 700;
+    margin: 0;
+    word-break: break-word;
+}
+/* Style du badge (au cas où) */
+.verified-badge {
+    color: var(--verified-badge-color, #007bff);
+    font-size: 1em;
+}
+
+/* === NOUVEAU: Style Biographie === */
+.profile-bio {
+    font-size: 0.95em;
+    color: var(--secondary-color, #555);
+    line-height: 1.6;
+    margin-top: 15px;
+    margin-bottom: 20px;
+    white-space: pre-wrap; /* Respecte les sauts de ligne de la bio */
+}
+
+.phone {
+    font-size: 1em;
+    color: var(--secondary-color, #555);
+    background: #e9f3ff;
+    padding: 10px 18px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 20px; /* Marge ajustée */
+    box-shadow: inset 0 0 3px rgba(0,0,0,0.05);
+}
+body.dark-theme .phone {
+    background: rgba(63, 156, 255, 0.15);
+    color: var(--secondary-color);
+}
+.phone i { color: var(--primary-color); }
+
+/* === NOUVEAU: Icônes Réseaux Sociaux === */
+.profile-socials {
+    display: flex;
+    justify-content: center;
+    gap: 18px;
+    margin-bottom: 25px;
+}
+.profile-socials a {
+    font-size: 1.6em; /* Taille des icônes */
+    color: var(--secondary-color, #888);
+    transition: color 0.3s ease, transform 0.3s ease;
+}
+.profile-socials a:hover {
+    color: var(--primary-color); /* Couleur au survol */
+    transform: scale(1.1);
+    text-decoration: none;
+}
+/* Couleurs spécifiques par réseau (optionnel) */
+.profile-socials a.facebook:hover { color: #1877F2; }
+.profile-socials a.whatsapp:hover { color: #25D366; }
+.profile-socials a.instagram:hover { color: #E4405F; }
+
+
+.btn-edit-profile {
+    background-color: var(--primary-color);
+    color: var(--nav-text-color, #fff);
+    padding: 10px 22px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+}
+.btn-edit-profile:hover {
+    background-color: var(--primary-hover);
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(15px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@media (max-width: 480px) {
+    .profile-card { padding: 30px 20px; margin: 40px 0; }
+    .profile-picture { width: 110px; height: 110px; }
+    .profile-name h1 { font-size: 1.4em; }
+    .profile-bio { font-size: 0.9em; }
+    .profile-socials a { font-size: 1.4em; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="profile-card">
+    <img src="{{ user_profile.get_photo_url }}" 
+         alt="Photo de profil de {{ user_profile.nom_utilisateur }}" 
+         class="profile-picture">
+
+    <div class="profile-name">
+      <h1>{{ user_profile.nom_utilisateur }}</h1>
+      {% if user_profile.is_staff %}
+        <i class="fa-solid fa-circle-check verified-badge" title="Administrateur certifié"></i>
+      {% endif %}
+    </div>
+
+    {# --- AFFICHAGE BIOGRAPHIE --- #}
+    {% if user_profile.biographie %}
+        <p class="profile-bio">{{ user_profile.biographie|linebreaksbr }}</p>
+    {% endif %}
+
+    {# On cache le numéro si on regarde le profil d'un admin (et que ce n'est pas nous) #}
+    {% if user_profile.numero_telephone %}
+        {% if request.user == user_profile or not user_profile.is_staff %}
+            <p class="phone">
+                <i class="fa-solid fa-phone"></i> {{ user_profile.numero_telephone }}
+            </p>
+        {% endif %}
+    {% endif %}
+
+    {# --- AFFICHAGE ICÔNES SOCIALES --- #}
+    <div class="profile-socials">
+        {% if user_profile.lien_facebook %}
+            <a href="{{ user_profile.lien_facebook }}" target="_blank" title="Facebook" class="facebook">
+                <i class="fab fa-facebook-f"></i>
+            </a>
+        {% endif %}
+        {% if user_profile.lien_whatsapp %}
+            <a href="https://wa.me/{{ user_profile.lien_whatsapp }}" target="_blank" title="WhatsApp" class="whatsapp">
+                <i class="fab fa-whatsapp"></i>
+            </a>
+        {% endif %}
+         {% if user_profile.lien_instagram %}
+            <a href="{{ user_profile.lien_instagram }}" target="_blank" title="Instagram" class="instagram">
+                <i class="fab fa-instagram"></i>
+            </a>
+        {% endif %}
+    </div>
+
+    {# Bouton Modifier (seulement si c'est mon profil) #}
+    {% if request.user == user_profile %}
+      <a href="{% url 'utilisateurs:profil_modifier' %}" class="btn-edit-profile">
+        <i class="fa-solid fa-pencil"></i> Modifier le profil
+      </a>
+    {% endif %}
+</div>
+{% endblock %}

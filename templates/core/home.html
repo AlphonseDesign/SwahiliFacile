@@ -1,0 +1,211 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Accueil - Swahili Facile{% endblock %}
+
+{% block styles %}
+<style>
+    /* --- Grille --- */
+    .publications-grid {
+        display: grid;
+        /* Défaut: 1 colonne */
+        grid-template-columns: 1fr;
+        gap: 24px; /* Espace entre les cartes */
+        padding-top: 10px;
+    }
+    /* 2 colonnes sur écrans moyens */
+    @media (min-width: 640px) {
+        .publications-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    }
+    /* 3 colonnes sur écrans larges */
+    @media (min-width: 1024px) {
+        .publications-grid { grid-template-columns: repeat(3, 1fr); gap: 24px; }
+    }
+
+    /* --- Carte --- */
+    .publication-card {
+        background-color: var(--card-bg, #ffffff);
+        color: var(--text-dark);
+        border-radius: 16px; /* Coins arrondis */
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08); /* Ombre comme l'image */
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+        border: 1px solid var(--border-color, #f0f0f0);
+    }
+    .publication-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+    }
+
+    /* --- Image --- */
+    .card-image-container {
+        position: relative;
+        height: 200px; /* Hauteur comme l'image */
+        background-color: #f0f2f5;
+    }
+    .card-image-container a { display: block; height: 100%; }
+    .card-image-container img {
+        width: 100%; height: 100%;
+        object-fit: cover; /* Remplit la zone */
+        display: block;
+    }
+
+    /* --- Badge --- */
+    .card-badge {
+        position: absolute; bottom: 10px; right: 10px;
+        background-color: var(--primary-color, #0056b3);
+        color: var(--nav-text-color, white);
+        padding: 4px 9px;
+        border-radius: 6px; font-size: 0.75em;
+        font-weight: 500; z-index: 5; text-transform: uppercase;
+    }
+
+    /* --- Contenu --- */
+    .card-content {
+        padding: 16px 18px 20px 18px; /* Padding ajusté */
+        display: flex; flex-direction: column; flex-grow: 1;
+    }
+
+    /* --- Métadonnées --- */
+    .card-meta {
+        font-size: 0.75em; /* Très petit */
+        color: var(--secondary-color, #888);
+        margin-bottom: 8px;
+        display: flex; align-items: center; gap: 5px;
+    }
+    .card-meta i { font-size: 0.9em; color: #aaa; }
+    .card-meta img {
+        width: 22px; height: 22px; border-radius: 50%;
+        margin-right: 5px;
+        object-fit: cover; border: 1px solid var(--border-color, #eee);
+    }
+    .card-meta strong a { color: var(--text-dark); text-decoration: none; font-weight: 600; }
+    .card-meta strong a:hover { color: var(--link-hover-color); }
+    .verified-badge { color: var(--verified-badge-color); margin-left: 3px; font-size: 0.9em; vertical-align: middle; }
+    .date-part { color: var(--secondary-color, #65676b); }
+
+    /* --- Titre --- */
+    .card-content h2 {
+        font-size: 1.1em;
+        font-weight: 600; margin: 0 0 8px 0; line-height: 1.4;
+    }
+    .card-content h2 a { text-decoration: none; color: var(--text-dark); }
+    .card-content h2 a:hover { color: var(--link-hover-color); }
+
+    /* --- Extrait --- */
+    .card-excerpt {
+        font-size: 0.88em;
+        color: var(--text-secondary-color, #555);
+        line-height: 1.55; flex-grow: 1; margin-bottom: 18px;
+        display: -webkit-box;
+        -webkit-line-clamp: 3; /* Max 3 lignes */
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* --- Bouton "Lire la suite" --- */
+    .btn-lire-suite {
+        background-color: var(--primary-color);
+        color: var(--nav-text-color, #ffffff) !important; /* !important pour forcer le blanc */
+        padding: 8px 18px;
+        border-radius: 50px;
+        text-decoration: none; font-weight: 500; font-size: 0.85em;
+        text-align: center; display: inline-block; margin-top: auto;
+        transition: transform 0.2s ease;
+        align-self: flex-start;
+    }
+    .btn-lire-suite .arrow {
+        display: inline-block;
+        transition: transform 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+        margin-left: 4px;
+    }
+    .btn-lire-suite:hover {
+        transform: translateY(-2px);
+        color: var(--nav-text-color, #ffffff) !important; /* Reste blanc au survol */
+        text-decoration: none;
+    }
+    .btn-lire-suite:hover .arrow {
+        transform: translateX(5px);
+    }
+
+    /* --- Responsive Mobile --- */
+    @media (max-width: 639px) {
+        .publications-grid {
+            padding: 0.5rem;
+            gap: 18px;
+        }
+        .card-image-container { height: 180px; }
+        .card-content { padding: 15px; }
+        .card-content h2 { font-size: 1.05em; }
+        .card-meta { font-size: 0.7em; }
+        .card-excerpt { font-size: 0.85em; -webkit-line-clamp: 2; }
+        .btn-lire-suite { padding: 7px 15px; font-size: 0.8em; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+
+    {# La barre de navigation dupliquée (qui était ici) a été SUPPRIMÉE #}
+
+    <div class="publications-grid">
+
+        {% if not publications %}
+            <div style="background: var(--card-bg); color: var(--text-dark); padding: 20px; border-radius: 12px; box-shadow: var(--shadow); grid-column: 1 / -1;">
+                <p style="text-align: center; color: var(--secondary-color);">Hakuna habari kwa sasa. (Aucune info pour le moment.)</p>
+            </div>
+        {% endif %}
+
+        {% for pub in publications %}
+            <article class="publication-card">
+
+                {% if pub.image %}
+                <div class="card-image-container">
+                    <a href="{% url 'publications:detail' pk=pub.pk %}">
+                        <img src="{{ pub.image.url }}" alt="{{ pub.titre }}">
+                    </a>
+                    <span class="card-badge">{{ pub.get_type_publication_display }}</span>
+                </div>
+                {% endif %}
+
+                <div class="card-content">
+                    <div class="card-meta">
+                         <img src="{{ pub.auteur.get_photo_url }}" alt="Photo de {{ pub.auteur.nom_utilisateur }}">
+                         <span>
+                            <strong>
+                                <a href="{% url 'utilisateurs:public_profil' nom_utilisateur=pub.auteur.nom_utilisateur %}">
+                                    {{ pub.auteur.nom_utilisateur }}
+                                </a>
+                                {% if pub.auteur.is_staff %}
+                                    <i class="fa-solid fa-circle-check verified-badge" title="Administrateur certifié"></i>
+                                {% endif %}
+                            </strong>
+                            <span class="date-part">&middot; {{ pub.date_creation|timesince }} ago</span>
+                        </span>
+                    </div>
+
+                    <h2>
+                        <a href="{% url 'publications:detail' pk=pub.pk %}">
+                            {{ pub.titre }}
+                        </a>
+                    </h2>
+
+                    {% if pub.contenu_texte %}
+                        <div class="card-excerpt">
+                            {{ pub.contenu_texte|striptags|truncatewords:25 }}
+                        </div>
+                    {% endif %}
+                    
+                    <a href="{% url 'publications:detail' pk=pub.pk %}" class="btn-lire-suite">
+                        Lire la suite <span class="arrow">&raquo;</span>
+                    </a>
+                </div>
+
+            </article>
+        {% endfor %}
+    </div>
+
+{% endblock %}

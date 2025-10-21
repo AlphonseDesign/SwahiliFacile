@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+
+{% block title %}Mes Messages{% endblock %}
+
+{% block styles %}
+<style>
+/* --- Conteneur principal --- */
+.inbox-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #ffffff;
+    border-radius: 14px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 25px;
+    overflow: hidden;
+}
+
+/* --- En-tête --- */
+.inbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e4e6eb;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.inbox-header h1 {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: #0a3d62;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+.inbox-header i {
+    color: #0056b3;
+}
+.btn-nouveau {
+    background: #0056b3;
+    color: #fff;
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.btn-nouveau:hover {
+    background: #004494;
+}
+
+/* --- Liste des messages --- */
+.message-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+.message-item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 12px;
+    border-bottom: 1px solid #f0f2f5;
+    transition: background 0.2s ease-in-out;
+}
+.message-item:hover {
+    background-color: #f9fbff;
+}
+
+/* --- Détails du message --- */
+.message-info {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+.message-sujet {
+    font-weight: 600;
+    font-size: 1em;
+    color: #1c1e21;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.message-sujet i {
+    color: #0056b3;
+}
+.message-meta {
+    font-size: 0.85em;
+    color: #666;
+}
+
+/* --- Badge “nouveau” --- */
+.badge-nouveau {
+    background: #007bff;
+    color: #fff;
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-left: 8px;
+    animation: blink 1.2s infinite alternate;
+}
+@keyframes blink {
+    from { background: #007bff; }
+    to { background: #339cff; }
+}
+
+/* --- Bouton “voir” --- */
+.btn-view {
+    color: #fff;
+    background: #0056b3;
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.btn-view:hover {
+    background: #004494;
+}
+
+/* --- Message vide --- */
+.empty-inbox {
+    text-align: center;
+    padding: 40px;
+    color: #65676b;
+}
+.empty-inbox i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+    color: #ced4da;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+    .inbox-container {
+        padding: 15px;
+        margin: 10px;
+    }
+    .message-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    .btn-view {
+        width: 100%;
+        text-align: center;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inbox-container">
+    <div class="inbox-header">
+        <h1><i class="fa-solid fa-envelope"></i> Mes Messages</h1>
+        <a href="{% url 'messagerie:new_thread' %}" class="btn-nouveau">
+            <i class="fa-solid fa-plus"></i> Contacter l’administrateur
+        </a>
+    </div>
+
+    <ul class="message-list">
+        {% for fil in fils_de_discussion %}
+            <li class="message-item">
+                <div class="message-info">
+                    <span class="message-sujet">
+                        <i class="fa-regular fa-message"></i> {{ fil.sujet }}
+                        {% if not fil.lu_par_visiteur %}
+                            <span class="badge-nouveau">Nouveau</span>
+                        {% endif %}
+                    </span>
+                    <span class="message-meta">
+                        Dernière réponse : {{ fil.dernier_message|timesince }} ago
+                    </span>
+                </div>
+                <a href="{% url 'messagerie:thread_detail' fil_id=fil.id %}" class="btn-view">
+                    Voir
+                </a>
+            </li>
+        {% empty %}
+            <li class="empty-inbox">
+                <i class="fa-regular fa-envelope-open"></i>
+                Vous n’avez aucune discussion.
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

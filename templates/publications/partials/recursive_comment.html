@@ -1,0 +1,64 @@
+<div class="comment" style="{% if comm.parent %}margin-left: 20px; border-left: 2px solid #f0f2f5; padding-left: 15px; margin-top: 10px;{% endif %}">
+    
+    <div class="comment-meta">
+        {# Affiche la photo de profil ronde #}
+        <img src="{{ comm.auteur.get_photo_url }}" alt="Photo de {{ comm.auteur.nom_utilisateur }}">
+        <div> {# Conteneur pour Nom+Badge et Date #}
+            <strong>
+                {# Lien vers le profil de l'auteur #}
+                <a href="{% url 'utilisateurs:public_profil' nom_utilisateur=comm.auteur.nom_utilisateur %}">
+                    {{ comm.auteur.nom_utilisateur }}
+                </a>
+                {# === AJOUT DU BADGE ICI === #}
+                {% if comm.auteur.is_staff %}
+                    <i class="fa-solid fa-circle-check verified-badge" title="Administrateur certifié"></i>
+                {% endif %}
+                {# === FIN AJOUT BADGE === #}
+            </strong>
+            <span> · {{ comm.date_creation|timesince }} ago</span> {# Point séparateur et date #}
+        </div>
+    </div>
+
+    <div class="comment-body">
+        {{ comm.contenu|linebreaksbr }} {# linebreaksbr pour garder les sauts de ligne simples #}
+    </div>
+
+    <div class="comment-actions">
+        {% if request.user.is_authenticated %}
+            <a href="#" class="btn-reply" data-comment-id="{{ comm.pk }}">
+                <i class="fa-regular fa-paper-plane"></i> Répondre
+            </a>
+        {% endif %}
+
+        {% with reponses=comm.get_reponses %} {# Utilisation de with pour éviter d'appeler get_reponses plusieurs fois #}
+            {% if reponses.count > 0 %}
+                <a href="#" class="btn-toggle-replies" data-target-id="reply-container-{{ comm.pk }}">
+                     {# L'icône et le texte seront gérés par le JS #}
+                     <i class="fa-regular fa-comment-dots"></i>
+                     Afficher {{ reponses.count }} réponse{{ reponses.count|pluralize:"s" }}
+                </a>
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    {% if request.user.is_authenticated %}
+        <form method="POST" action="" class="comment-form reply-form" id="reply-form-{{ comm.pk }}" style="display: none; margin-top: 10px;">
+            {% csrf_token %}
+            <input type="hidden" name="parent_id" value="{{ comm.pk }}">
+            <textarea name="contenu" required placeholder="Votre réponse..."></textarea>
+            <button type="submit">Envoyer la réponse</button>
+        </form>
+    {% endif %}
+
+    {% with reponses=comm.get_reponses %}
+        {% if reponses.count > 0 %}
+            <div class="reply-container" id="reply-container-{{ comm.pk }}" style="display: none; margin-top: 10px;">
+                {# Boucle récursive pour afficher les réponses #}
+                {% for reponse in reponses %}
+                    {% include 'publications/partials/recursive_comment.html' with comm=reponse %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+</div>

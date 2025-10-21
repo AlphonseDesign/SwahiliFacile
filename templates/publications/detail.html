@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+
+{% block meta_tags %}
+    <meta property="og:title" content="{{ og_title }}" />
+    <meta property="og:description" content="{{ og_description }}" />
+    <meta property="og:image" content="{{ og_image }}" />
+    <meta property="og:url" content="{{ og_url }}" />
+    <meta property="og:type" content="article" />
+{% endblock %}
+
+{% block title %}{{ publication.titre }} - Swahili Facile{% endblock %}
+
+{% block styles %}
+<style>
+/* ... (Tous vos styles existants pour .article-container, .post-footer, .comment-section, etc. restent ici) ... */
+/* Copiez-collez TOUS les styles de votre fichier detail.html précédent ici */
+
+/* ========================= */
+/* 🌍 STYLE GLOBAL */
+/* ========================= */
+body {
+    background-color: var(--background-color, #f0f2f5);
+    font-family: "Inter", "Segoe UI", sans-serif;
+    color: var(--text-dark, #1c1e21);
+    margin: 0;
+    padding: 0;
+}
+a { text-decoration: none; color: inherit; }
+
+/* ========================= */
+/* 🧭 CONTENEUR PRINCIPAL */
+/* ========================= */
+.article-container {
+    max-width: 720px;
+    margin: 25px auto;
+    background: var(--card-bg, #fff);
+    border-radius: 14px;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+    overflow: hidden;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+    border: 1px solid var(--border-color, #f0f0f0);
+}
+.article-container:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+}
+
+/* ========================= */
+/* 🖼️ IMAGE / VIDÉO */
+/* ========================= */
+.article-image {
+    width: 100%;
+    height: auto;
+    max-height: 460px;
+    object-fit: cover;
+    display: block;
+}
+/* *** STYLE POUR LE LECTEUR VIDÉO *** */
+.video-container {
+    position: relative;
+    padding-bottom: 56.25%; /* Ratio 16:9 */
+    height: 0;
+    overflow: hidden;
+    max-width: 100%;
+    background: #000;
+}
+.video-container iframe {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    border: none;
+}
+
+/* ========================= */
+/* ✍️ CONTENU */
+/* ========================= */
+.article-content {
+    padding: 25px 26px;
+}
+.article-content h1 {
+    text-align: center;
+    font-size: 2em;
+    margin-bottom: 10px;
+    font-weight: 700;
+    color: var(--text-dark, #0a3d62);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.article-content h1 i {
+    color: var(--primary-color, #0056b3);
+}
+.article-meta {
+    text-align: center;
+    font-size: 0.9em;
+    color: var(--secondary-color, #65676b);
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+.article-meta img {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+.article-meta strong a {
+    color: var(--text-dark, #1c1e21);
+    text-decoration: none;
+    font-weight: 600;
+}
+.article-meta strong a:hover {
+    text-decoration: underline;
+}
+.article-body {
+    line-height: 1.7;
+    font-size: 1.05em;
+    color: var(--text-dark, #242526);
+    white-space: pre-wrap;
+    margin-top: 15px;
+}
+.lien-externe-block {
+    font-size:1.05em;
+    background-color: var(--background-color, #f4f6fb);
+    padding:14px;
+    border-radius:8px;
+    margin-top:20px;
+    text-align:center;
+}
+.lien-externe-block i { color:var(--primary-color, #0056b3); margin-right: 5px;}
+.lien-externe-block a { color: var(--primary-color, #0056b3); font-weight: 500;}
+.lien-externe-block a:hover { text-decoration: underline;}
+
+/* ... (Tous vos autres styles : .post-footer, .comment-section, etc. restent ici) ... */
+.post-footer { border-top: 1px solid var(--border-color, #e4e6eb); padding: 18px 22px; background: var(--card-bg, #fff); }
+.post-stats { display: flex; justify-content: space-between; color: var(--secondary-color, #65676b); font-size: 0.9em; margin-bottom: 12px; }
+.post-stats span { display: inline-flex; align-items: center; gap: 6px; }
+.post-stats i { color: var(--primary-color, #0056b3); }
+.action-bar { display: flex; justify-content: space-around; border-top: 1px solid var(--border-color, #e4e6eb); padding-top: 12px; }
+.action-button { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; padding: 10px; border: none; border-radius: 10px; font-weight: 600; font-size: 0.95em; background: none; color: var(--secondary-color, #606770); cursor: pointer; transition: all 0.25s ease; }
+.action-button i { font-size: 1.15em; }
+.action-button:hover { background-color: var(--background-color, #f0f2f5); color: var(--primary-color, #0056b3); }
+.action-button.liked { color: var(--primary-color, #0056b3); }
+.action-button.liked i { color: var(--primary-color, #0056b3); }
+.partage-section { border-top: 1px solid var(--border-color, #e4e6eb); padding-top: 15px; margin-top: 15px; text-align: center; }
+.partage-section h3 { margin: 0 0 12px; font-size: 1em; color: var(--secondary-color, #606770); display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-partage { color: white; padding: 9px 15px; border-radius: 8px; margin: 5px 8px; font-size: 0.9em; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; transition: transform 0.2s ease, opacity 0.2s ease; }
+.btn-partage i { font-size: 1.05em; }
+.btn-partage:hover { transform: translateY(-3px); opacity: 0.9; }
+.btn-fb { background: linear-gradient(135deg, #1877f2, #0d65d9); }
+.btn-wa { background: linear-gradient(135deg, #25D366, #1da851); }
+.comment-section { max-width: 720px; margin: 30px auto; background: var(--card-bg, #fff); border-radius: 14px; box-shadow: 0 3px 10px rgba(0,0,0,0.08); padding: 22px; border: 1px solid var(--border-color, #f0f0f0); }
+.comment-section h2 { text-align: center; font-size: 1.25em; color: var(--text-dark, #0a3d62); margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.comment-form textarea { width: 100%; border-radius: 8px; border: 1px solid var(--border-color, #ddd); padding: 10px; font-size: 0.95em; resize: vertical; min-height: 80px; font-family: inherit; background-color: var(--background-color, #f9fafb); color: var(--text-dark); }
+.comment-form textarea:focus { border-color: var(--primary-color); background-color: var(--card-bg); box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1); outline: none; }
+.comment-form button { margin-top: 10px; background: var(--primary-color); color: var(--nav-text-color, white); border: none; border-radius: 6px; padding: 10px 16px; font-weight: 600; cursor: pointer; transition: background 0.2s ease; display: inline-flex; align-items: center; gap: 8px; }
+.comment-form button:hover { background: var(--primary-hover); }
+.comment { border-bottom: 1px solid var(--border-color, #f0f2f5); padding: 15px 0; }
+.comment:last-child { border-bottom: none; }
+.comment-meta { font-size: 0.9em; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
+.comment-meta img { width: 32px; height: 32px; border-radius: 50%; object-fit: cover; }
+.comment-meta strong a { color: var(--primary-color, #0056b3); font-weight: 600; text-decoration: none; }
+.comment-meta strong a:hover { text-decoration: underline; }
+.comment-meta span { color: var(--secondary-color, #888); font-size: 0.9em;}
+.comment-body { margin-left: 40px; font-size: 0.95em; color: var(--text-dark, #333); line-height: 1.6; }
+.comment-actions { margin-left: 40px; margin-top: 8px; display: flex; gap: 15px; }
+.btn-reply { font-size: 0.85em; color: var(--secondary-color, #606770); text-decoration: none; font-weight: bold; display: inline-flex; align-items: center; gap: 4px; transition: color 0.2s ease; }
+.btn-reply:hover { color: var(--primary-color); }
+.btn-toggle-replies { display: inline-flex; align-items: center; gap: 5px; font-size: 0.9em; color: var(--primary-color, #0056b3); text-decoration: none; font-weight: 600; margin-top: 10px; padding: 4px 8px; border-radius: 4px; transition: background-color 0.2s ease; }
+.btn-toggle-replies:hover { background-color: var(--background-color, #f0f2f5); }
+.comment-list .comment:nth-child(n+9) { display: none; }
+.comment-list.show-all .comment { display: block !important; }
+.btn-load-more { display: block; width: 100%; padding: 10px 15px; background-color: var(--background-color, #f0f2f5); color: var(--primary-color, #0056b3); border: 1px solid var(--border-color, #eee); border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 15px; transition: background-color 0.2s ease; }
+.btn-load-more:hover { background-color: #e9ebee; }
+body.dark-theme .btn-load-more { background-color: var(--card-bg, #2c2c2c); border-color: var(--border-color, #444); }
+body.dark-theme .btn-load-more:hover { background-color: #3a3a3a; }
+.comment-list.show-all .btn-load-more { display: none; }
+@media (max-width: 768px) {
+    .article-container, .comment-section { margin: 10px; border-radius: 10px; }
+    .article-content { padding: 15px 15px; }
+    .article-content h1 { font-size: 1.5em; margin-bottom: 8px; }
+    .article-meta { margin-bottom: 15px; font-size: 0.85em; }
+    .article-body { font-size: 0.95em; line-height: 1.6; margin-top: 10px; }
+    .lien-externe-block { margin-top: 15px; padding: 12px; font-size: 0.95em; }
+    .post-footer { padding: 15px 15px; }
+    .action-button { padding: 8px; font-size: 0.9em; }
+    .comment-section { padding: 15px; }
+    .comment-form textarea { font-size: 0.9em; }
+    .comment-body { font-size: 0.9em; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<a href="{% url 'core:home' %}" style="display:inline-block; margin:15px auto; color:var(--primary-color, #0056b3); font-weight:600; max-width: 720px; display: block; padding: 0 10px;">
+    <i class="fa-solid fa-arrow-left"></i> Retour à l'accueil
+</a>
+
+<article class="article-container">
+    
+    {# *** MODIFICATION ICI *** #}
+    {# On vérifie quel type de média afficher en premier #}
+
+    {% if publication.type_publication == 'PHOTO' and publication.image %}
+        <img src="{{ publication.image.url }}" alt="{{ publication.titre }}" class="article-image">
+    
+    {% elif publication.type_publication == 'VIDEO' %}
+        {# On récupère l'URL embed depuis notre nouvelle fonction #}
+        {% with embed_url=publication.get_embed_url %}
+            {% if embed_url %}
+                <div class="video-container">
+                    <iframe src="{{ embed_url }}" 
+                            frameborder="0" 
+                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                            allowfullscreen>
+                    </iframe>
+                </div>
+            {% else %}
+                {# Si ce n'est pas un lien YouTube/Vimeo, on affiche un lien normal #}
+                <div class="article-content" style="padding-bottom: 0;">
+                    <p class="lien-externe-block">
+                        <i class="fa-solid fa-video"></i>
+                        <strong>Lien Vidéo :</strong>
+                        <a href="{{ publication.video_url }}" target="_blank" rel="noopener noreferrer">{{ publication.video_url }}</a>
+                    </p>
+                </div>
+            {% endif %}
+        {% endwith %}
+
+    {% endif %}
+    {# *** FIN MODIFICATION *** #}
+
+
+    <div class="article-content">
+        <h1><i class="fa-solid fa-newspaper"></i> {{ publication.titre }}</h1>
+        <div class="article-meta">
+            <img src="{{ publication.auteur.get_photo_url }}" alt="Photo de {{ publication.auteur.nom_utilisateur }}">
+            <span>
+                Publié par <strong>
+                     <a href="{% url 'utilisateurs:public_profil' nom_utilisateur=publication.auteur.nom_utilisateur %}" style="color: var(--text-dark, #1c1e21);">
+                        {{ publication.auteur.nom_utilisateur }}
+                     </a>
+                     {% if publication.auteur.is_staff %}
+                        <i class="fa-solid fa-circle-check verified-badge" title="Administrateur certifié"></i>
+                     {% endif %}
+                </strong>
+                le {{ publication.date_creation|date:"d M Y à H:i" }}
+            </span>
+        </div>
+
+        <hr style="border:none; border-top:1px solid var(--border-color, #e4e6eb); margin:20px 0;">
+
+        <div class="article-body">
+            {{ publication.contenu_texte|linebreaks }}
+        </div>
+
+        {% if publication.type_publication == 'LIEN' and publication.lien_externe %}
+        <p class="lien-externe-block">
+            <i class="fa-solid fa-link"></i>
+            <strong>Lien externe :</strong>
+            <a href="{{ publication.lien_externe }}" target="_blank" rel="noopener noreferrer">{{ publication.lien_externe }}</a>
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="post-footer">
+        <div class="post-stats">
+            <span><i class="fa-solid fa-thumbs-up"></i> {{ publication.likes.count }}</span>
+            <span><i class="fa-regular fa-comment"></i> {{ publication.commentaires.count }}</span>
+            <span><i class="fa-solid fa-eye"></i> {{ publication.vues }}</span>
+        </div>
+
+        <div class="action-bar">
+            <form method="POST" action="{% url 'publications:like' pk=publication.pk %}" style="width:100%;">
+                {% csrf_token %}
+                <button type="submit" class="action-button {% if a_deja_like %}liked{% endif %}">
+                    {% if a_deja_like %}
+                        <i class="fa-solid fa-thumbs-up"></i> Liké
+                    {% else %}
+                        <i class="fa-regular fa-thumbs-up"></i> Liker
+                    {% endif %}
+                </button>
+            </form>
+            <a href="#comments" class="action-button">
+                <i class="fa-regular fa-comment"></i> Commenter
+            </a>
+        </div>
+
+        <section class="partage-section">
+            <h3><i class="fa-solid fa-share-nodes"></i> Partager cette publication</h3>
+            <a href="https://www.facebook.com/sharer/sharer.php?u={{ og_url }}" target="_blank" class="btn-partage btn-fb">
+                <i class="fa-brands fa-facebook-f"></i> Facebook
+            </a>
+            <a href="https://wa.me/?text={{ og_title|urlencode }}%20-%20{{ og_url }}" target="_blank" class="btn-partage btn-wa">
+                <i class="fa-brands fa-whatsapp"></i> WhatsApp
+            </a>
+        </section>
+    </div>
+</article>
+
+<section class="comment-section" id="comments">
+    <h2><i class="fa-regular fa-comments"></i> Commentaires ({{ publication.commentaires.count }})</h2>
+
+    {% if request.user.is_authenticated %}
+        <form method="POST" action="" class="comment-form">
+            {% csrf_token %}
+            <textarea name="contenu" placeholder="Laissez un commentaire..." required></textarea>
+            <button type="submit"><i class="fa-regular fa-paper-plane"></i> Envoyer</button>
+        </form>
+    {% else %}
+        <p style="text-align:center;">Vous devez <a href="{% url 'utilisateurs:connexion' %}?next={{ request.path }}" style="color:#0056b3;font-weight:600;">vous connecter</a> pour commenter.</p>
+    {% endif %}
+
+    <hr style="border:none;border-top:1px solid #eee;margin:20px 0;">
+
+    {% if not commentaires %}
+        <p style="text-align: center; color: #65676b;">Soyez le premier à commenter !</p>
+    {% endif %}
+
+    <div class="comment-list" id="comment-list-container">
+        {% for comm in commentaires %}
+            {% include 'publications/partials/recursive_comment.html' with comm=comm %}
+        {% endfor %}
+
+        {% if commentaires.count > 8 %}
+            <button id="load-more-comments" class="btn-load-more">
+                <i class="fa-solid fa-chevron-down"></i> 
+                Voir les {{ commentaires.count|add:"-8" }} autre{{ commentaires.count|add:"-8"|pluralize:"s" }} commentaire{{ commentaires.count|add:"-8"|pluralize:"s" }}
+            </button>
+        {% endif %}
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // --- Gère le formulaire "Répondre" ---
+        const replyButtons = document.querySelectorAll('.btn-reply');
+        replyButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const commentId = this.getAttribute('data-comment-id');
+                const replyForm = document.getElementById('reply-form-' + commentId);
+                if (replyForm.style.display === 'none' || replyForm.style.display === '') {
+                    replyForm.style.display = 'block';
+                    this.innerHTML = '<i class="fa-regular fa-paper-plane"></i> Annuler';
+                } else {
+                    replyForm.style.display = 'none';
+                    this.innerHTML = '<i class="fa-regular fa-paper-plane"></i> Répondre';
+                }
+            });
+        });
+        // --- Gère "Afficher/Masquer les réponses" ---
+        const toggleButtons = document.querySelectorAll('.btn-toggle-replies');
+        toggleButtons.forEach(button => {
+            const originalText = button.innerHTML;
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const targetId = this.getAttribute('data-target-id');
+                const replyContainer = document.getElementById(targetId);
+                if (replyContainer.style.display === 'none' || replyContainer.style.display === '') {
+                    replyContainer.style.display = 'block';
+                    this.innerHTML = '<i class="fa-regular fa-comment-dots"></i> Masquer les réponses';
+                } else {
+                    replyContainer.style.display = 'none';
+                    this.innerHTML = originalText;
+                }
+            });
+        });
+        // --- Gère "Voir plus de commentaires" ---
+        const loadMoreBtn = document.getElementById('load-more-comments');
+        const commentListContainer = document.getElementById('comment-list-container');
+
+        if (loadMoreBtn && commentListContainer) {
+            loadMoreBtn.addEventListener('click', function(event) {
+                event.preventDefault();
+                commentListContainer.classList.add('show-all');
+            });
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,148 @@
+{% extends 'base.html' %}
+
+{% block title %}Tableau de bord Admin{% endblock %}
+
+{% block styles %}
+<style>
+/* ========================= */
+/* 🎨 STYLE GLOBAL DASHBOARD */
+/* ========================= */
+
+body {
+    background-color: #f5f7fa;
+}
+
+.dashboard-wrapper {
+    max-width: 900px;
+    margin: 20px auto;
+    padding: 0 15px;
+}
+
+.dashboard-container {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    padding: 25px 30px;
+    transition: box-shadow 0.3s ease;
+}
+
+.dashboard-container:hover {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.1);
+}
+
+/* ========================= */
+/* 🏷️ TITRE ET EN-TÊTE */
+/* ========================= */
+.dashboard-header {
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* ✅ centrage horizontal des titres */
+    gap: 8px;
+    margin-bottom: 25px;
+    text-align: center; /* ✅ pour bien centrer le texte */
+}
+.dashboard-header h1 {
+    font-size: 1.8em;
+    font-weight: 700;
+    color: #0a3d62;
+    margin: 0;
+}
+.dashboard-header p {
+    font-size: 1em;
+    color: #555;
+}
+
+/* ========================= */
+/* 🔗 LIENS DE NAVIGATION */
+/* ========================= */
+.dashboard-nav {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+}
+.dashboard-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 18px 20px;
+    background: #f4f6fb;
+    border-radius: 10px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    border: 1px solid transparent;
+}
+.dashboard-card i {
+    font-size: 1.5em;
+    color: #0056b3;
+}
+.dashboard-card:hover {
+    background: #0056b3;
+    color: white;
+    transform: translateY(-3px);
+    border-color: #004494;
+}
+.dashboard-card:hover i {
+    color: white;
+}
+
+/* ========================= */
+/* 🔴 BADGE NOTIFICATIONS */
+/* ========================= */
+.badge {
+    background: #dc3545;
+    color: white;
+    padding: 3px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    margin-left: auto;
+}
+
+/* ========================= */
+/* 📱 RESPONSIVE */
+/* ========================= */
+@media (max-width: 600px) {
+    .dashboard-container {
+        padding: 20px;
+    }
+    .dashboard-header h1 {
+        font-size: 1.5em;
+    }
+    .dashboard-nav {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1><i class="fa-solid fa-gauge-high"></i> Tableau de bord Administrateur</h1>
+            <p>Bienvenue, <strong>{{ request.user.nom_utilisateur }}</strong> </p>
+        </div>
+
+        <nav class="dashboard-nav">
+            <a href="{% url 'core:dashboard_messages_list' %}" class="dashboard-card">
+                <i class="fa-regular fa-envelope"></i>
+                <span>Gérer les messages</span>
+                {% if fils_non_lus > 0 %}
+                    <span class="badge">{{ fils_non_lus }} nouveau(x)</span>
+                {% endif %}
+            </a>
+
+            <a href="{% url 'admin:publications_publication_add' %}" class="dashboard-card" target="_blank">
+                <i class="fa-solid fa-pen-to-square"></i>
+                <span>Écrire une publication</span>
+            </a>
+
+            <a href="{% url 'admin:index' %}" class="dashboard-card" target="_blank">
+                <i class="fa-solid fa-gear"></i>
+                <span>Accéder au Django Admin</span>
+            </a>
+        </nav>
+    </div>
+</div>
+{% endblock %}

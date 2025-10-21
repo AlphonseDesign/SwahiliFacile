@@ -1,0 +1,297 @@
+{% extends 'base.html' %}
+
+{% block title %}Discussion avec {{ fil.visiteur.nom_utilisateur }}{% endblock %}
+
+{% block styles %}
+<style>
+/* ======================= */
+/* 💬 CHAT STYLE MODERNE */
+/* ======================= */
+body {
+    background-color: #f0f2f5;
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.chat-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 85vh; /* Hauteur de la fenêtre de chat */
+}
+
+/* ===== HEADER ===== */
+.chat-header {
+    display: flex;
+    align-items: center;
+    padding: 15px 20px;
+    background: #0056b3; /* Bleu principal */
+    color: #fff;
+    font-weight: 600;
+    justify-content: space-between; /* Espace les éléments */
+}
+.chat-header a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.9;
+}
+.chat-header a:hover { opacity: 1; }
+.chat-header .user-info { /* Conteneur pour photo + nom */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.chat-header .user-info img { /* Photo profil dans le header */
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+
+/* ===== CHAT BOX ===== */
+.chat-box {
+    flex-grow: 1; /* Prend l'espace restant */
+    background: #e5ddd5; /* Fond type WhatsApp */
+    padding: 15px;
+    overflow-y: auto; /* Permet de scroller */
+    display: flex;
+    flex-direction: column; /* Messages empilés */
+}
+
+/* ===== MESSAGES ===== */
+.message {
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 0.95em;
+    max-width: 75%; /* Largeur max de la bulle */
+    line-height: 1.4;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+    word-wrap: break-word; /* Coupe les mots longs */
+}
+.message.admin { /* Message envoyé par l'admin (VOUS) */
+    align-self: flex-end; /* Colle à droite */
+    background: #dcf8c6; /* Vert WhatsApp envoyé */
+    color: #303030;
+    border-bottom-right-radius: 5px; /* Petite flèche */
+}
+.message.visiteur { /* Message reçu du visiteur */
+    align-self: flex-start; /* Colle à gauche */
+    background: #fff;
+    color: #222;
+    border-bottom-left-radius: 5px; /* Petite flèche */
+    box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+}
+.message-sender { /* Nom de l'expéditeur au-dessus de la bulle */
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 4px;
+    color: #555; /* Couleur par défaut */
+    display: inline-flex; /* Pour aligner le badge */
+    align-items: center;
+    gap: 4px;
+}
+.message.admin .message-sender { color: #075e54; } /* Vert foncé WhatsApp */
+.message.visiteur .message-sender { color: #0056b3; } /* Bleu */
+.message-sender a { color: inherit; text-decoration: none; }
+.message-sender a:hover { text-decoration: underline; }
+/* Le style .verified-badge est dans base.html */
+
+.message-meta { /* Date/heure sous le message */
+    font-size: 0.75em;
+    color: #aaa;
+    margin-top: 4px;
+    text-align: right;
+    display: flex; /* Pour aligner le double check */
+    align-items: center;
+    justify-content: flex-end; /* Aligner à droite */
+}
+.message.admin .message-meta {
+    color: #6aa17d; /* Couleur méta pour message envoyé */
+}
+.message.visiteur .message-meta {
+    color: #aaa;
+}
+/* Style pour l'image dans le message */
+.message-image {
+    max-width: 100%; /* S'adapte à la bulle */
+    max-height: 250px; /* Limite la hauteur */
+    border-radius: 10px; /* Coins arrondis */
+    margin-top: 8px; /* Espace si texte + image */
+    display: block; /* Pour appliquer margin */
+    cursor: pointer; /* Indique qu'on peut cliquer */
+}
+
+
+/* ===== FORMULAIRE ===== */
+.reply-form {
+    padding: 10px 15px; /* Padding réduit */
+    display: flex;
+    align-items: center; /* Aligner verticalement */
+    gap: 10px; /* Espace entre les éléments */
+    background: #f0f2f5; /* Fond du footer */
+    border-top: 1px solid #ddd;
+}
+/* Zone contenant l'icône et le textarea */
+.input-area {
+    flex-grow: 1; /* Prend l'espace disponible */
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px; /* Bords très arrondis */
+    border: 1px solid #ccc;
+    padding: 0 10px; /* Padding interne */
+}
+.input-area textarea {
+    flex-grow: 1; /* Prend l'espace dans input-area */
+    border: none;
+    padding: 10px 5px; /* Padding interne du textarea */
+    resize: none; /* Empêche le redimensionnement manuel */
+    font-size: 0.95em;
+    background: none; /* Transparent */
+    outline: none; /* Pas de bordure au focus */
+    max-height: 100px; /* Limite l'expansion verticale */
+    overflow-y: auto; /* Ajoute une scrollbar si le texte dépasse */
+    font-family: inherit; /* Utilise la police du body */
+}
+/* Style de l'icône trombone (qui est un label) */
+.attach-btn {
+    padding: 8px;
+    margin-right: 5px;
+    cursor: pointer;
+    color: #555;
+    font-size: 1.2em; /* Taille de l'icône */
+    line-height: 1; /* Ajustement vertical */
+}
+.attach-btn:hover {
+    color: #0056b3; /* Changement de couleur au survol */
+}
+/* Masquer l'input file réel */
+#image_upload_input {
+    display: none;
+}
+/* Bouton d'envoi (avion en papier) */
+.send-btn {
+    border: none;
+    background: #0056b3;
+    color: #fff;
+    border-radius: 50%; /* Cercle parfait */
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    flex-shrink: 0; /* Ne pas rétrécir */
+}
+.send-btn:hover {
+    transform: scale(1.1); /* Effet de grossissement */
+}
+
+/* Animation d'apparition des messages */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Ajustements pour mobiles */
+@media (max-width: 768px) {
+    .chat-container {
+        height: 90vh; /* Prend presque toute la hauteur */
+        margin: 5px; /* Moins de marge */
+        border-radius: 12px;
+    }
+    .chat-header {
+        font-size: 0.9em;
+        padding: 12px 15px;
+    }
+    .reply-form { padding: 8px 10px; }
+    .input-area textarea { font-size: 0.9em; }
+    .send-btn { width: 40px; height: 40px; }
+    .attach-btn { font-size: 1.1em; padding: 6px;} /* Icône légèrement plus petite */
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+
+    <div class="chat-header">
+        <a href="{% url 'core:dashboard_messages_list' %}">
+            <i class="fa-solid fa-arrow-left"></i> Retour
+        </a>
+        {# Info utilisateur dans le header avec photo #}
+        <div class="user-info">
+             <img src="{{ fil.visiteur.get_photo_url }}" alt="">
+             <span>{{ fil.visiteur.nom_utilisateur }}</span>
+        </div>
+        <span style="width: 30px;"></span> {# Espace vide pour l'équilibre visuel #}
+    </div>
+
+    <div class="chat-box" id="chat-box">
+        {% for msg in messages_du_fil %}
+            <div class="message {% if msg.expediteur.is_staff %}admin{% else %}visiteur{% endif %}">
+                
+                {# Nom de l'expéditeur avec badge si admin #}
+                <div class="message-sender">
+                    <a href="{% url 'utilisateurs:public_profil' nom_utilisateur=msg.expediteur.nom_utilisateur %}">
+                        {{ msg.expediteur.nom_utilisateur }}
+                    </a>
+                    {% if msg.expediteur.is_staff %}
+                        <i class="fa-solid fa-circle-check verified-badge" title="Administrateur certifié"></i>
+                    {% endif %}
+                </div>
+
+                {% if msg.image %}
+                    <a href="{{ msg.image.url }}" target="_blank" title="Voir l'image en taille réelle">
+                        <img src="{{ msg.image.url }}" alt="Image envoyée" class="message-image">
+                    </a>
+                {% endif %}
+
+                {% if msg.contenu %}
+                    <p style="margin: 0;">{{ msg.contenu|linebreaksbr }}</p>
+                {% endif %}
+
+                <div class="message-meta">
+                    {{ msg.envoye_le|timesince }} ago
+                    {% if msg.expediteur.is_staff %} {# Afficher double check pour messages admin #}
+                        <i class="fa-solid fa-check-double" style="margin-left:4px;{% if forloop.last %}color:#4fc3f7;{% endif %}"></i>
+                    {% endif %}
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <form method="POST" class="reply-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="input-area">
+            <label for="image_upload_input" class="attach-btn" title="Joindre une image">
+                <i class="fa-solid fa-paperclip"></i>
+            </label>
+            <input type="file" name="image_upload" id="image_upload_input" accept="image/*">
+            
+            <textarea name="contenu" id="contenu" rows="1" placeholder="Écrivez un message..." oninput='this.style.height = "";this.style.height = this.scrollHeight + "px"'></textarea>
+        </div>
+        <button type="submit" class="send-btn" title="Envoyer">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+
+<script>
+    // Fait défiler la boîte de chat vers le bas au chargement
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

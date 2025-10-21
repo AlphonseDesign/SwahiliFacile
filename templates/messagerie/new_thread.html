@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+
+{% block title %}Nouveau Message{% endblock %}
+
+{% block styles %}
+<style>
+/* --- Arrière-plan --- */
+body {
+    background: linear-gradient(135deg, #e3f2fd 0%, #ffffff 100%);
+}
+
+/* --- Conteneur du formulaire --- */
+.form-container {
+    max-width: 650px; /* Légèrement plus large pour un formulaire */
+    margin: 60px auto;
+    padding: 40px 35px;
+    background: #ffffff;
+    border-radius: 16px;
+    box-shadow: 0 6px 24px rgba(0, 86, 179, 0.15);
+    animation: fadeIn 1s ease-in;
+    position: relative;
+    overflow: hidden;
+}
+
+/* --- Effets décoratifs (optionnel, repris de l'inscription) --- */
+.form-container::before {
+    content: "";
+    position: absolute;
+    top: -80px;
+    left: -80px;
+    width: 180px;
+    height: 180px;
+    background: rgba(0, 86, 179, 0.08);
+    border-radius: 50%;
+    animation: float 7s ease-in-out infinite alternate-reverse;
+}
+.form-container::after {
+    content: "";
+    position: absolute;
+    bottom: -60px;
+    right: -60px;
+    width: 140px;
+    height: 140px;
+    background: rgba(255, 193, 7, 0.12);
+    border-radius: 50%;
+    animation: float 6s ease-in-out infinite alternate;
+}
+
+/* --- En-tête --- */
+.form-container h1 {
+    text-align: center;
+    color: #0056b3;
+    font-size: 1.8em;
+    font-weight: 700;
+    margin-bottom: 10px;
+    display: flex; /* Pour aligner l'icône */
+    align-items: center;
+    justify-content: center;
+    gap: 10px; /* Espace entre icône et titre */
+    animation: slideDown 0.8s ease-out;
+}
+.form-container p.subtitle {
+    text-align: center;
+    color: #555;
+    margin-bottom: 30px;
+    font-size: 1em;
+}
+
+/* --- Champs du formulaire --- */
+.form-group {
+    margin-bottom: 22px; /* Espace entre les groupes label+input */
+}
+.form-container label {
+    display: block;
+    margin-bottom: 8px; /* Espace entre label et input */
+    font-weight: 600;
+    color: #333;
+    font-size: 0.95em; /* Taille label */
+}
+.form-container input[type="text"],
+.form-container textarea {
+    width: 100%;
+    padding: 12px 14px; /* Padding ajusté */
+    border: 1.5px solid #d0d7de;
+    border-radius: 8px;
+    box-sizing: border-box;
+    font-size: 1em;
+    transition: all 0.3s ease;
+    background-color: #f9fafb;
+    font-family: inherit; /* Utilise la police Inter */
+}
+.form-container textarea {
+    min-height: 120px; /* Hauteur minimale pour le message */
+    resize: vertical; /* Permet le redimensionnement vertical */
+}
+.form-container input:focus,
+.form-container textarea:focus {
+    border-color: #0056b3;
+    background-color: #fff;
+    box-shadow: 0 0 0 3px rgba(0, 86, 179, 0.1);
+    outline: none;
+    transform: scale(1.01);
+}
+
+/* --- Bouton d'envoi --- */
+.btn-submit {
+    width: 100%;
+    padding: 13px;
+    background: linear-gradient(135deg, #0056b3, #007bff);
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px; /* Espace au-dessus du bouton */
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+.btn-submit:hover {
+    background: linear-gradient(135deg, #004494, #0062cc);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 18px rgba(0, 86, 179, 0.25);
+}
+
+/* --- Animations (identiques à l'inscription) --- */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+@keyframes float {
+    from { transform: translateY(0px); }
+    to { transform: translateY(20px); }
+}
+
+/* --- Responsive --- */
+@media (max-width: 700px) { /* Point de rupture ajusté */
+    .form-container {
+        padding: 30px 25px; /* Padding ajusté */
+        margin: 30px 15px;
+    }
+    .form-container h1 {
+        font-size: 1.6em; /* Titre ajusté */
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <h1><i class="fa-regular fa-envelope"></i> Contacter l'administrateur</h1>
+    <p class="subtitle">Posez votre question ou laissez votre message ici. L'administrateur vous répondra dès que possible.</p>
+
+    {# Affichage des messages d'erreur du formulaire si besoin #}
+    {% if form.errors %}
+        <ul class="errorlist">
+        {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+                <li>{% if field != '__all__' %}{{ field|title }}: {% endif %}{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="POST" action="{% url 'messagerie:new_thread' %}"> {# Action ajoutée pour clarté #}
+        {% csrf_token %}
+
+        {# Champ Sujet #}
+        <div class="form-group">
+            <label for="sujet"><i class="fa-solid fa-heading" style="margin-right: 5px;"></i> Sujet :</label>
+            <input type="text" name="sujet" id="sujet" required maxlength="255"> {# Maxlength ajouté #}
+        </div>
+
+        {# Champ Message #}
+        <div class="form-group">
+            <label for="contenu"><i class="fa-regular fa-pen-to-square" style="margin-right: 5px;"></i> Votre Message :</label>
+            <textarea name="contenu" id="contenu" rows="6" required></textarea>
+        </div>
+
+        <button type="submit" class="btn-submit">
+            <i class="fa-solid fa-paper-plane"></i> Envoyer le message
+        </button>
+    </form>
+</div>
+{% endblock %}

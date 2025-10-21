@@ -1,0 +1,271 @@
+{% extends 'base.html' %}
+
+{% block title %}Discussion : {{ fil.sujet }}{% endblock %}
+
+{% block styles %}
+<style>
+body {
+    background-color: #f0f2f5;
+    font-family: "Inter", "Segoe UI", sans-serif;
+}
+
+.chat-container {
+    max-width: 800px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 18px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 85vh; /* Hauteur de la fenêtre de chat */
+}
+
+/* --- Header --- */
+.chat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px 20px;
+    background: #0056b3; /* Bleu principal */
+    color: #fff;
+    font-weight: 600;
+}
+.chat-header a {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.95em;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    opacity: 0.9;
+}
+.chat-header a:hover { opacity: 1; }
+/* Style pour le titre (sujet) */
+.chat-header .subject-title {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+}
+
+/* --- Zone des messages --- */
+.chat-box {
+    flex-grow: 1; /* Prend l'espace restant */
+    background: #e5ddd5; /* Fond type WhatsApp */
+    padding: 15px;
+    overflow-y: auto; /* Permet de scroller */
+    display: flex;
+    flex-direction: column; /* Messages empilés */
+}
+
+/* --- Style des bulles de message --- */
+.message {
+    margin-bottom: 10px;
+    padding: 10px 15px;
+    border-radius: 18px;
+    font-size: 0.95em;
+    max-width: 75%; /* Largeur max de la bulle */
+    line-height: 1.4;
+    position: relative;
+    animation: fadeIn 0.3s ease;
+    word-wrap: break-word; /* Coupe les mots longs */
+}
+.message.admin { /* Message reçu de l'admin */
+    align-self: flex-start; /* Colle à gauche */
+    background: #fff;
+    color: #222;
+    border-bottom-left-radius: 5px; /* Petite flèche */
+    box-shadow: 0 1px 1px rgba(0,0,0,0.08);
+}
+.message.visiteur { /* Message envoyé par le visiteur (VOUS) */
+    align-self: flex-end; /* Colle à droite */
+    background: #dcf8c6; /* Vert WhatsApp envoyé */
+    color: #303030;
+    border-bottom-right-radius: 5px; /* Petite flèche */
+}
+/* Nom de l'expéditeur */
+.message-sender {
+    font-size: 0.8em;
+    font-weight: 600;
+    margin-bottom: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+.message.admin .message-sender { color: #0056b3; } /* Bleu pour admin */
+.message.visiteur .message-sender { color: #075e54; } /* Vert pour soi */
+.message-sender a { color: inherit; text-decoration: none; }
+.message-sender a:hover { text-decoration: underline; }
+/* Le style .verified-badge est dans base.html */
+
+.message-meta { /* Date/heure sous le message */
+    font-size: 0.75em;
+    color: #aaa;
+    margin-top: 4px;
+    text-align: right;
+    display: flex; /* Pour aligner le double check */
+    align-items: center;
+    justify-content: flex-end; /* Aligner à droite */
+}
+.message.admin .message-meta { color: #aaa; }
+.message.visiteur .message-meta { color: #6aa17d; }
+
+/* Images dans les messages */
+.message-image {
+    max-width: 100%;
+    max-height: 250px;
+    border-radius: 10px;
+    margin-top: 8px;
+    display: block;
+    cursor: pointer;
+}
+
+/* --- Formulaire d'envoi --- */
+.reply-form {
+    padding: 10px 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #f0f2f5;
+    border-top: 1px solid #ddd;
+}
+.input-area {
+    flex-grow: 1;
+    display: flex;
+    align-items: center;
+    background: #fff;
+    border-radius: 25px;
+    border: 1px solid #ccc;
+    padding: 0 10px;
+}
+.input-area textarea {
+    flex-grow: 1;
+    border: none;
+    padding: 10px 5px;
+    resize: none;
+    font-size: 0.95em;
+    background: none;
+    outline: none;
+    max-height: 100px;
+    overflow-y: auto;
+    font-family: inherit;
+}
+.attach-btn {
+    padding: 8px;
+    margin-right: 5px;
+    cursor: pointer;
+    color: #555;
+    font-size: 1.2em;
+}
+.attach-btn:hover { color: #0056b3; }
+#image_upload_input { display: none; }
+.send-btn {
+    border: none;
+    background: #0056b3;
+    color: #fff;
+    border-radius: 50%;
+    width: 45px;
+    height: 45px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s ease;
+    flex-shrink: 0;
+}
+.send-btn:hover { transform: scale(1.1); }
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* Scrollbar (optionnel) */
+.chat-box::-webkit-scrollbar { width: 6px; }
+.chat-box::-webkit-scrollbar-thumb { background-color: #bdbdbd; border-radius: 3px;}
+.chat-box::-webkit-scrollbar-track { background: #e0e0e0; }
+
+
+/* Responsive */
+@media (max-width: 768px) {
+    .chat-container { height: 90vh; margin: 5px; border-radius: 12px; }
+    .chat-header { font-size: 0.9em; padding: 12px 15px; }
+    .reply-form { padding: 8px 10px; }
+    .input-area textarea { font-size: 0.9em; }
+    .send-btn { width: 40px; height: 40px; }
+    .attach-btn { font-size: 1.1em; padding: 6px; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="chat-container">
+
+    <div class="chat-header">
+        <a href="{% url 'messagerie:inbox' %}"> {# Lien vers la boîte de réception visiteur #}
+            <i class="fa-solid fa-arrow-left"></i> Retour
+        </a>
+        <span class="subject-title"><i class="fa-regular fa-comments"></i> {{ fil.sujet }}</span>
+        <span style="width: 30px;"></span> {# Espace vide #}
+    </div>
+
+    <div class="chat-box" id="chat-box">
+        {% for msg in messages_du_fil %}
+            {# Les classes CSS sont inversées par rapport à la vue admin #}
+            <div class="message {% if msg.expediteur.is_staff %}admin{% else %}visiteur{% endif %}">
+
+                {# Nom de l'expéditeur avec badge si admin #}
+                <div class="message-sender">
+                    <a href="{% url 'utilisateurs:public_profil' nom_utilisateur=msg.expediteur.nom_utilisateur %}">
+                        {{ msg.expediteur.nom_utilisateur }}
+                    </a>
+                    {% if msg.expediteur.is_staff %}
+                        <i class="fa-solid fa-circle-check verified-badge" title="Administrateur certifié"></i>
+                    {% endif %}
+                </div>
+
+                {% if msg.image %}
+                    <a href="{{ msg.image.url }}" target="_blank" title="Voir l'image">
+                        <img src="{{ msg.image.url }}" alt="Image envoyée" class="message-image">
+                    </a>
+                {% endif %}
+
+                {% if msg.contenu %}
+                    <p style="margin: 0;">{{ msg.contenu|linebreaksbr }}</p>
+                {% endif %}
+
+                <div class="message-meta">
+                    {{ msg.envoye_le|timesince }} ago
+                    {# Pas besoin de double check ici #}
+                </div>
+            </div>
+        {% empty %}
+            <p style="text-align:center;color:#777;">Aucun message pour l’instant...</p>
+        {% endfor %}
+    </div>
+
+    {# Formulaire visiteur (doit être compatible avec la vue messagerie.views.thread_detail_view) #}
+    <form method="POST" class="reply-form" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="input-area">
+            <label for="image_upload_input" class="attach-btn" title="Joindre une image">
+                <i class="fa-solid fa-paperclip"></i>
+            </label>
+            {# ASSUREZ-VOUS que votre vue messagerie.views.thread_detail_view gère 'image_upload' #}
+            <input type="file" name="image_upload" id="image_upload_input" accept="image/*">
+
+            <textarea name="contenu" id="contenu" rows="1" placeholder="Écrivez un message..." oninput='this.style.height="";this.style.height=this.scrollHeight+"px"'></textarea>
+        </div>
+        <button type="submit" class="send-btn" title="Envoyer">
+            <i class="fa-solid fa-paper-plane"></i>
+        </button>
+    </form>
+</div>
+
+<script>
+    // Auto-scroll au bas de la discussion
+    const chatBox = document.getElementById('chat-box');
+    chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+{% endblock %}

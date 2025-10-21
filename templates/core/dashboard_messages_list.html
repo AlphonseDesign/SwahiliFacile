@@ -1,0 +1,214 @@
+{% extends 'base.html' %}
+
+{% block title %}Boîte de réception{% endblock %}
+
+{% block styles %}
+<style>
+/* --- Conteneur principal --- */
+.inbox-container {
+    max-width: 700px;
+    margin: 30px auto;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-dark);
+    border-radius: 14px;
+    box-shadow: var(--shadow, 0 4px 20px rgba(0,0,0,0.08));
+    padding: 25px;
+    overflow: hidden;
+    border: 1px solid var(--border-color, #f0f0f0);
+}
+
+/* --- En-tête --- */
+.inbox-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid var(--border-color, #e4e6eb);
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.inbox-header h1 {
+    font-size: 1.3em;
+    font-weight: 600;
+    color: var(--primary-color, #0a3d62);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+.inbox-header h1 i {
+    color: var(--primary-color, #0056b3);
+    font-size: 1em;
+}
+.btn-retour {
+    color: var(--primary-color, #0056b3);
+    font-weight: 600;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--background-color, #f0f8ff);
+    padding: 6px 12px;
+    border-radius: 8px;
+    transition: background 0.2s;
+}
+.btn-retour:hover {
+    background: #e6f0ff;
+    text-decoration: none;
+}
+body.dark-theme .btn-retour:hover { background: #333; }
+
+/* --- Liste --- */
+.message-list { list-style: none; margin: 0; padding: 0; }
+.message-item {
+    position: relative;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border-color, #f0f2f5);
+    transition: background 0.2s ease-in-out;
+}
+.message-item:hover {
+    background-color: var(--background-color, #f9fbff);
+}
+
+/* --- Nom de l’utilisateur --- */
+.message-name {
+    font-size: 1.05em;
+    font-weight: 500;
+    color: var(--text-dark, #1c1e21);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* === STYLE POUR LA PHOTO DE PROFIL === */
+.profile-pic-small {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid var(--card-bg, #fff);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+/* === NOUVEAU STYLE POUR L'ICÔNE === */
+.profile-pic-icon {
+    font-size: 30px; /* Taille de l'icône */
+    color: #ccc; /* Couleur grise discrète */
+    width: 32px;  /* Occupe le même espace que la photo */
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+body.dark-theme .profile-pic-icon {
+    color: var(--secondary-color, #6c757d);
+}
+
+
+/* --- Badge “Nouveau message” --- */
+.badge-nouveau {
+    background: var(--primary-color, #007bff);
+    color: white;
+    font-size: 0.75em;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    animation: blink 1.2s infinite alternate;
+}
+@keyframes blink {
+    from { background: #007bff; }
+    to { background: #339cff; }
+}
+body.dark-theme @keyframes blink {
+    from { background: var(--primary-color); }
+    to { background: var(--primary-hover); }
+}
+
+/* --- Bouton Voir le message --- */
+.btn-view {
+    color: #fff;
+    background: var(--primary-color, #0056b3);
+    padding: 6px 12px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.2s;
+}
+.btn-view:hover {
+    background: var(--primary-hover, #004494);
+    text-decoration: none;
+    color: #fff;
+}
+
+/* --- Message vide --- */
+.empty-inbox {
+    text-align: center;
+    padding: 40px;
+    color: var(--secondary-color, #65676b);
+}
+.empty-inbox i {
+    font-size: 2em;
+    margin-bottom: 10px;
+    display: block;
+    color: #ced4da;
+}
+
+/* --- Responsive --- */
+@media (max-width: 600px) {
+    .inbox-container { padding: 15px; margin: 10px; }
+    .inbox-header h1 { font-size: 1.1em; }
+    .message-item { flex-direction: column; align-items: flex-start; gap: 10px; }
+    .btn-view { width: 100%; text-align: center; }
+    .profile-pic-small { width: 28px; height: 28px; }
+    .profile-pic-icon { font-size: 26px; width: 28px; height: 28px; } /* Icône responsive */
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="inbox-container">
+    <div class="inbox-header">
+        <h1><i class="fa-solid fa-comments"></i> Boîte de réception</h1>
+        <a href="{% url 'core:dashboard' %}" class="btn-retour">
+            <i class="fa-solid fa-arrow-left"></i> Retour
+        </a>
+    </div>
+
+    <ul class="message-list">
+        {% for fil in fils_de_discussion %}
+            <li class="message-item">
+                <span class="message-name">
+                    
+                    {# === CORRECTION ICI === #}
+                    {% if fil.visiteur.photo_profil %}
+                        <img src="{{ fil.visiteur.photo_profil.url }}" alt="Photo de {{ fil.visiteur.nom_utilisateur }}" class="profile-pic-small">
+                    {% else %}
+                        <span class="profile-pic-icon">
+                            <i class="fa-regular fa-user-circle"></i>
+                        </span>
+                    {% endif %}
+                    {# === FIN CORRECTION === #}
+
+                    {{ fil.visiteur.nom_utilisateur }}
+                    
+                    {% if not fil.lu_par_admin %}
+                        <span class="badge-nouveau">Nouveau</span>
+                    {% endif %}
+                </span>
+                <a href="{% url 'core:dashboard_message_detail' fil_id=fil.id %}" class="btn-view">
+                    Voir le message
+                </a>
+            </li>
+        {% empty %}
+            <li class="empty-inbox">
+                <i class="fa-regular fa-envelope-open"></i>
+                Aucun message pour le moment.
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}
