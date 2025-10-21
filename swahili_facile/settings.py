@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 import dj_database_url
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -19,10 +22,16 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Apps locales
     'utilisateurs.apps.UtilisateursConfig',
     'publications.apps.PublicationsConfig',
     'core.apps.CoreConfig',
     'messagerie.apps.MessagerieConfig',
+
+    # Cloudinary
+    'cloudinary',
+    'cloudinary_storage',
 ]
 
 # Middleware
@@ -89,6 +98,20 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# --- Configuration Cloudinary ---
+CLOUDINARY_URL = os.environ.get(
+    'CLOUDINARY_URL',
+    'cloudinary://666288578721726:mJvxigW8H-kDTgTMpKzSkP4aFig@dqqnbdmow'
+)
+
+cloudinary.config(
+    cloud_name="dqqnbdmow",
+    api_key="666288578721726",
+    api_secret="mJvxigW8H-kDTgTMpKzSkP4aFig"
+)
+
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
 # Jazzmin
 JAZZMIN_SETTINGS = {
