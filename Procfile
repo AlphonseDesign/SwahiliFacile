@@ -1,1 +1,0 @@
-web: gunicorn swahili_facile.wsgi:application
